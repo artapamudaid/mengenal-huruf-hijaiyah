@@ -3,11 +3,12 @@
    Belajar Huruf Hijaiyah
    ========================= */
 
-const CACHE_NAME = "hijaiyah-pwa-v4";
+const CACHE_NAME = "hijaiyah-pwa-v5";
 
 const FILES_TO_CACHE = [
   "/",
   "/index.html",
+  "/kuis.html",
   "/manifest.json",
   "/service-worker.js",
   "/assets/audio/hijaiyah/a.wav",
