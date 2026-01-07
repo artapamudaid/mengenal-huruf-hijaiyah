@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Belajar Huruf Hijaiyah</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen">
+
+  <div class="max-w-4xl mx-auto p-4 sm:p-6">
+    <h1 class="text-2xl sm:text-3xl font-bold text-center mb-2">Belajar Huruf Hijaiyah</h1>
+    <p class="text-center text-slate-600 mb-6 text-sm sm:text-base">
+      Klik huruf untuk mendengarkan pelafalan
+    </p>
+
+    <div id="grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4"></div>
+  </div>
+
+  <audio id="audio" preload="auto"></audio>
+
+  <script>
+    const basePath = "assets/audio/hijaiyah/";
+
+    const bgColors = [
+      "bg-red-200",
+      "bg-blue-200",
+      "bg-green-200",
+      "bg-indigo-200",
+      "bg-purple-200",
+      "bg-pink-200",
+      "bg-orange-200",
+      "bg-teal-200"
+    ];
+
+    const hoverColors = [
+      "text-red-800",
+      "text-blue-800",
+      "text-green-800",
+      "text-indigo-800",
+      "text-purple-800",
+      "text-pink-800",
+      "text-orange-800",
+      "text-teal-800"
+    ];
+
+    const colors = [
+      "text-red-500",
+      "text-blue-500",
+      "text-green-500",
+      "text-indigo-500",
+      "text-purple-500",
+      "text-pink-500",
+      "text-orange-500",
+      "text-teal-500"
+    ];
+
+    const hijaiyah = [
+      { huruf: "أَ", file: "a.wav" },
+      { huruf: "بَ", file: "ba.wav" },
+      { huruf: "تَ", file: "ta.wav" },
+      { huruf: "ثَ", file: "tsa.wav" },
+      { huruf: "جَ", file: "ja.wav" },
+      { huruf: "حَ", file: "kha.wav" },
+      { huruf: "خَ", file: "kho.wav" },
+      { huruf: "دَ", file: "da.wav" },
+      { huruf: "ذَ", file: "dza.wav" },
+      { huruf: "رَ", file: "ro.wav" },
+      { huruf: "زَ", file: "za.wav" },
+      { huruf: "سَ", file: "sa.wav" },
+      { huruf: "شَ", file: "sya.wav" },
+      { huruf: "صَ", file: "sho.wav" },
+      { huruf: "ضَ", file: "dho.wav" },
+      { huruf: "طَ", file: "tho.wav" },
+      { huruf: "ظَ", file: "dzo.wav" },
+      { huruf: "عَ", file: "nga.wav" },
+      { huruf: "غَ", file: "gho.wav" },
+      { huruf: "فَ", file: "fa.wav" },
+      { huruf: "قَ", file: "qo.wav" },
+      { huruf: "كَ", file: "ka.wav" },
+      { huruf: "لَ", file: "la.wav" },
+      { huruf: "مَ", file: "ma.wav" },
+      { huruf: "نَ", file: "na.wav" },
+      { huruf: "هَ", file: "ha.wav" },
+      { huruf: "وَ", file: "wa.wav" },
+      { huruf: "ءَ", file: "a.wav" },
+      { huruf: "يَ", file: "ya.wav" }
+    ];
+
+    const grid = document.getElementById("grid");
+    const audio = document.getElementById("audio");
+
+    hijaiyah.forEach((item, index) => {
+      const bgColorClass = bgColors[index % bgColors.length];
+      const colorClass = colors[index % colors.length];
+      const hoverColorClass = hoverColors[index % hoverColors.length];
+
+    const btn = document.createElement("button");
+    btn.textContent = item.huruf;
+    btn.className =
+      `${bgColorClass} rounded-xl shadow h-24 flex items-center justify-center
+       text-6xl font-bold ${colorClass}
+       hover:${hoverColorClass} active:scale-95 transition`;
+
+      btn.addEventListener("click", () => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.src = basePath + item.file;
+        audio.play();
+      });
+
+      grid.appendChild(btn);
+    });
+  </script>
+
+</body>
+</html>
