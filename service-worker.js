@@ -1,4 +1,9 @@
-const CACHE_NAME = "hijaiyah-pwa-v1";
+/* =========================
+   SERVICE WORKER v2
+   Belajar Huruf Hijaiyah
+   ========================= */
+
+const CACHE_NAME = "hijaiyah-pwa-v4";
 
 const FILES_TO_CACHE = [
   "/",
@@ -32,19 +37,66 @@ const FILES_TO_CACHE = [
   "/assets/audio/hijaiyah/na.wav",
   "/assets/audio/hijaiyah/ha.wav",
   "/assets/audio/hijaiyah/wa.wav",
-  "/assets/audio/hijaiyah/ya.wav"
+  "/assets/audio/hijaiyah/ya.wav",
+
+  /* Audio Feedback */
+  "/assets/audio/feedback/benar.wav",
+  "/assets/audio/feedback/salah.wav",
+  "/assets/audio/feedback/sempurna.wav",
+  "/assets/audio/feedback/bagus.wav",
+  "/assets/audio/feedback/kurang.wav",
+
+  /* Library Offline */
+  "/assets/js/confetti.min.js",
+  "/assets/js/sweetalert2.min.js",
 ];
 
+/* INSTALL */
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(FILES_TO_CACHE);
+    })
   );
+  self.skipWaiting();
 });
 
+/* ACTIVATE */
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      )
+    )
+  );
+  self.clients.claim();
+});
+
+/* FETCH */
 self.addEventListener("fetch", event => {
+  if (event.request.method !== "GET") return;
+
   event.respondWith(
     caches.match(event.request).then(response => {
-      return response || fetch(event.request);
+      return (
+        response ||
+        fetch(event.request).then(fetchRes => {
+          return caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, fetchRes.clone());
+            return fetchRes;
+          });
+        }).catch(() => {
+          /* Fallback jika offline total */
+          if (event.request.destination === "document") {
+            return caches.match("/index.html");
+          }
+        })
+      );
     })
   );
 });

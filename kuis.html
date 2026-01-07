@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Hijaiyah">
+  <title>Kuis Hijaiyah</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="assets/css/sweetalert2.min.css">
+</head>
+<body class="bg-slate-100 min-h-screen">
+<div class="max-w-xl mx-auto p-6">
+    <a href="index.html" class="inline-block mb-4 px-4 py-2 bg-slate-300 text-white rounded-lg hover:bg-slate-700 transition">
+        ← Kembali
+    </a>
+</div>
+<div class="max-w-xl mx-auto p-6 text-center">
+
+  <h1 class="text-3xl font-bold mb-2">Kuis Huruf Hijaiyah</h1>
+
+  <div class="mb-4">
+    <div class="h-3 bg-slate-300 rounded-full overflow-hidden">
+      <div id="progressBar" class="h-full bg-indigo-500 w-0 transition-all"></div>
+    </div>
+    <div id="progressText" class="text-sm mt-1 text-slate-600"></div>
+  </div>
+
+  <button id="playSound"
+    class="mb-4 px-6 py-3 bg-indigo-600 text-white rounded-lg text-lg">
+    🔊 Putar Suara
+  </button>
+
+  <div id="options" class="grid grid-cols-2 gap-4 mb-4"></div>
+
+</div>
+
+<!-- AUDIO -->
+<audio id="audio"></audio>
+
+<audio id="soundCorrect" src="assets/audio/feedback/benar.wav" preload="auto"></audio>
+<audio id="soundWrong" src="assets/audio/feedback/salah.wav" preload="auto"></audio>
+
+<audio id="soundPerfect" src="assets/audio/feedback/sempurna.wav" preload="auto"></audio>
+<audio id="soundGood" src="assets/audio/feedback/bagus.wav" preload="auto"></audio>
+<audio id="soundBad" src="assets/audio/feedback/kurang.wav" preload="auto"></audio>
+
+<!-- JS OFFLINE -->
+<script src="assets/js/confetti.min.js"></script>
+<script src="assets/js/sweetalert2.min.js"></script>
+
+<script>
+/* =========================
+   KONFIGURASI
+========================= */
+const basePath = "assets/audio/hijaiyah/";
+const TOTAL = 10;
+
+/* =========================
+   DATA HURUF
+========================= */
+const data = [
+      { huruf: "أَ", file: "a.wav" },
+      { huruf: "بَ", file: "ba.wav" },
+      { huruf: "تَ", file: "ta.wav" },
+      { huruf: "ثَ", file: "tsa.wav" },
+      { huruf: "جَ", file: "ja.wav" },
+      { huruf: "حَ", file: "kha.wav" },
+      { huruf: "خَ", file: "kho.wav" },
+      { huruf: "دَ", file: "da.wav" },
+      { huruf: "ذَ", file: "dza.wav" },
+      { huruf: "رَ", file: "ro.wav" },
+      { huruf: "زَ", file: "za.wav" },
+      { huruf: "سَ", file: "sa.wav" },
+      { huruf: "شَ", file: "sya.wav" },
+      { huruf: "صَ", file: "sho.wav" },
+      { huruf: "ضَ", file: "dho.wav" },
+      { huruf: "طَ", file: "tho.wav" },
+      { huruf: "ظَ", file: "dzo.wav" },
+      { huruf: "عَ", file: "nga.wav" },
+      { huruf: "غَ", file: "gho.wav" },
+      { huruf: "فَ", file: "fa.wav" },
+      { huruf: "قَ", file: "qo.wav" },
+      { huruf: "كَ", file: "ka.wav" },
+      { huruf: "لَ", file: "la.wav" },
+      { huruf: "مَ", file: "ma.wav" },
+      { huruf: "نَ", file: "na.wav" },
+      { huruf: "هَ", file: "ha.wav" },
+      { huruf: "وَ", file: "wa.wav" },
+      { huruf: "يَ", file: "ya.wav" }
+    ];
+
+/* =========================
+   ELEMENT
+========================= */
+const audio = document.getElementById("audio");
+
+const soundCorrect = document.getElementById("soundCorrect");
+const soundWrong   = document.getElementById("soundWrong");
+const soundPerfect = document.getElementById("soundPerfect");
+const soundGood    = document.getElementById("soundGood");
+const soundBad     = document.getElementById("soundBad");
+
+const optionsEl = document.getElementById("options");
+const progressBar = document.getElementById("progressBar");
+const progressText = document.getElementById("progressText");
+
+/* =========================
+   STATE
+========================= */
+let score = 0;
+let index = 0;
+let correct;
+
+/* =========================
+   HELPER
+========================= */
+function shuffle(arr) {
+  return arr.sort(() => Math.random() - 0.5);
+}
+
+function fireSmallConfetti() {
+  confetti({
+    particleCount: 60,
+    spread: 60,
+    origin: { y: 0.7 }
+  });
+}
+
+function fireBigConfetti() {
+  confetti({
+    particleCount: 220,
+    spread: 110,
+    startVelocity: 45
+  });
+}
+
+function updateProgress() {
+  progressBar.style.width = (index / TOTAL * 100) + "%";
+  progressText.textContent = `Soal ${index} dari ${TOTAL}`;
+}
+
+/* =========================
+   LOGIC KUIS
+========================= */
+function nextQuestion() {
+  if (index >= TOTAL) return finishQuiz();
+
+  optionsEl.innerHTML = "";
+
+  const shuffled = shuffle([...data]);
+  correct = shuffled[0];
+  const choices = shuffle(shuffled.slice(0, 4));
+
+  choices.forEach(item => {
+    const btn = document.createElement("button");
+    btn.textContent = item.huruf;
+    btn.className =
+      "bg-white text-4xl font-bold py-6 rounded-xl shadow hover:bg-indigo-50 active:scale-95 transition";
+
+    btn.onclick = () => {
+      if (item === correct) {
+        soundCorrect.currentTime = 0;
+        soundCorrect.play();
+        fireSmallConfetti();
+
+        score++;
+        index++;
+        updateProgress();
+
+        setTimeout(nextQuestion, 900);
+      } else {
+        soundWrong.currentTime = 0;
+        soundWrong.play();
+      }
+    };
+
+    optionsEl.appendChild(btn);
+  });
+
+  audio.src = basePath + correct.file;
+  audio.currentTime = 0;
+  audio.play();
+}
+
+/* =========================
+   AKHIR KUIS
+========================= */
+function finishQuiz() {
+  let stars = "⭐";
+  let title = "Tetap Semangat";
+  let emoji = "😢";
+  let finalSound = soundBad;
+
+  if (score >= 4) {
+    stars = "⭐⭐";
+    title = "Bagus";
+    emoji = "👍";
+    finalSound = soundGood;
+  }
+
+  if (score >= 9) {
+    stars = "⭐⭐⭐";
+    title = "Sempurna";
+    emoji = "🏆";
+    finalSound = soundPerfect;
+    fireBigConfetti();
+  }
+
+  finalSound.currentTime = 0;
+  finalSound.play();
+
+  Swal.fire({
+    title: `${title} ${emoji}`,
+    html: `
+      <div style="font-size:42px">${stars}</div>
+      <div style="font-size:18px;margin-top:6px">
+        Skor ${score} dari ${TOTAL}
+      </div>
+    `,
+    confirmButtonText: "Ulangi",
+    cancelButtonText: "Belajar",
+    showCancelButton: true,
+    allowOutsideClick: false
+  }).then(result => {
+    if (result.isConfirmed) startQuiz();
+    else location.href = "index.html";
+  });
+}
+
+/* =========================
+   START
+========================= */
+function startQuiz() {
+  score = 0;
+  index = 0;
+  updateProgress();
+  nextQuestion();
+}
+
+document.getElementById("playSound").onclick = () => {
+  audio.currentTime = 0;
+  audio.play();
+};
+
+startQuiz();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js").then(reg => {
+    reg.onupdatefound = () => {
+      const worker = reg.installing;
+      worker.onstatechange = () => {
+        if (worker.state === "installed") {
+          if (navigator.serviceWorker.controller) {
+            location.reload();
+          }
+        }
+      };
+    };
+  });
+}
+</script>
+
+
+</body>
+</html>

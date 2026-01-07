@@ -23,6 +23,16 @@
     </p>
 
     <div id="grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4"></div>
+
+    <div class="mt-8 text-center">
+      <a href="kuis.html"
+        class="inline-block px-8 py-4 bg-indigo-600 text-white
+                text-xl font-bold rounded-xl shadow
+                hover:bg-indigo-700 active:scale-95 transition">
+        🎯 Mulai Kuis
+      </a>
+    </div>
+
   </div>
 
   <audio id="audio" preload="auto"></audio>
@@ -120,11 +130,23 @@
       grid.appendChild(btn);
     });
   </script>
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
-    }
-  </script>
+ <script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js").then(reg => {
+    reg.onupdatefound = () => {
+      const worker = reg.installing;
+      worker.onstatechange = () => {
+        if (worker.state === "installed") {
+          if (navigator.serviceWorker.controller) {
+            location.reload();
+          }
+        }
+      };
+    };
+  });
+}
+</script>
+
 
 </body>
 </html>
