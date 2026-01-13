@@ -167,30 +167,33 @@ function nextQuestion() {
       "bg-white text-4xl font-bold py-6 rounded-xl shadow hover:bg-indigo-50 active:scale-95 transition";
 
     btn.onclick = () => {
-      if (item === correct) {
-        soundCorrect.currentTime = 0;
-        soundCorrect.play();
-        fireSmallConfetti();
-
-        score++;
-        index++;
-        updateProgress();
-
-        setTimeout(nextQuestion, 900);
-      } else {
-        soundWrong.currentTime = 0;
-        soundWrong.play();
-      }
+      handleAnswer(item === correct);
     };
 
-    optionsEl.appendChild(btn);
-  });
 
   audio.src = basePath + correct.file;
   audio.currentTime = 0;
   audio.play();
 }
 
+
+
+function handleAnswer(isCorrect) {
+  if (isCorrect) {
+    soundCorrect.currentTime = 0;
+    soundCorrect.play();
+    fireSmallConfetti();
+    score++;
+  } else {
+    soundWrong.currentTime = 0;
+    soundWrong.play();
+  }
+
+  index++;
+  updateProgress();
+
+  setTimeout(nextQuestion, 900);
+}
 /* =========================
    AKHIR KUIS
 ========================= */
