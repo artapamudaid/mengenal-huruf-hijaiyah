@@ -166,17 +166,15 @@ function nextQuestion() {
     btn.className =
       "bg-white text-4xl font-bold py-6 rounded-xl shadow hover:bg-indigo-50 active:scale-95 transition";
 
-    btn.onclick = () => {
-      handleAnswer(item === correct);
-    };
+    btn.onclick = () => handleAnswer(item === correct);
 
+    optionsEl.appendChild(btn);
+  });
 
   audio.src = basePath + correct.file;
   audio.currentTime = 0;
   audio.play();
 }
-
-
 
 function handleAnswer(isCorrect) {
   if (isCorrect) {
@@ -194,6 +192,8 @@ function handleAnswer(isCorrect) {
 
   setTimeout(nextQuestion, 900);
 }
+
+
 /* =========================
    AKHIR KUIS
 ========================= */
@@ -203,14 +203,14 @@ function finishQuiz() {
   let emoji = "😢";
   let finalSound = soundBad;
 
-  if (score >= 4) {
+  if (score >= 7) {
     stars = "⭐⭐";
     title = "Bagus";
     emoji = "👍";
     finalSound = soundGood;
   }
 
-  if (score >= 9) {
+  if (score == 10) {
     stars = "⭐⭐⭐";
     title = "Sempurna";
     emoji = "🏆";

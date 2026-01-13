@@ -3,7 +3,7 @@
    Belajar Huruf Hijaiyah
    ========================= */
 
-const CACHE_NAME = "hijaiyah-pwa-v7";
+const CACHE_NAME = "hijaiyah-pwa-v10";
 
 const FILES_TO_CACHE = [
   "/",
